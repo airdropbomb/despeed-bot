@@ -1,0 +1,10 @@
+config.json
+package-lock.json
+node_modules
+proxy.txt
+accounts.txt
+accountBot.txt
+test.js
+token.txt
+tokentest.txt
+experiment
