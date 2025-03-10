@@ -1,9 +1,21 @@
 const socketSpeed = require("./class/wsdeSpeed");
+const chalk = require("chalk");
 const { getRandomProxy, loadProxies } = require("./class/proxy");
 const fs = require("fs");
 const { logMessage } = require("./utils/logger");
 
 async function main() {
+  console.log(
+    chalk.cyan(`
+░█▀▄░█▀▀░█▀▀░█▀█░█▀▀░█▀▀░█▀▄
+░█░█░█▀▀░▀▀█░█▀▀░█▀▀░█▀▀░█░█
+░▀▀░░▀▀▀░▀▀▀░▀░░░▀▀▀░▀▀▀░▀▀░
+  By : El Puqus Airdrop
+   github.com/ahlulmukh
+ Use it at your own risk
+  `)
+  );
+
   try {
     const token = fs
       .readFileSync("token.txt", "utf8")
