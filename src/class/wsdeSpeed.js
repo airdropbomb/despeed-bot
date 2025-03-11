@@ -72,12 +72,11 @@ class socketSpeed {
       if (response) {
         this.email = response.data.data.email;
         return response.data;
-      } else {
-        return false;
       }
+      return null;
     } catch (error) {
       logger.log(`{red-fg}Request failed: ${error.message}{/red-fg}`);
-      return false;
+      return null;
     }
   }
 
@@ -97,7 +96,7 @@ class socketSpeed {
       if (response) {
         return response.data;
       }
-      return false;
+      return null;
     } catch (error) {
       logMessage(
         this.currentNum,
@@ -123,15 +122,16 @@ class socketSpeed {
     if (response) {
       this.taskCompleted = response.data.data.today.completed || 0;
       return response.data;
-    } else {
-      return false;
     }
+    return null;
   }
 
   async getLocation() {
+    logMessage(this.currentNum, this.total, `Getting location`, "process");
     try {
       const response = await this.makeRequest("GET", `https://ipinfo.io/json`);
       if (response && response.data.loc) {
+        logMessage(this.currentNum, this.total, `Location found`, "success");
         const [latitude, longitude] = response.data.loc.split(",");
         return {
           city: response.data.city,
@@ -140,9 +140,8 @@ class socketSpeed {
           latitude: parseFloat(latitude),
           longitude: parseFloat(longitude),
         };
-      } else {
-        throw new Error("Failed to get location data.");
       }
+      return null;
     } catch (error) {
       logMessage(
         this.currentNum,
@@ -155,17 +154,26 @@ class socketSpeed {
   }
 
   async performSpeedTest() {
+    logMessage(this.currentNum, this.total, `Running speedtest`, "process");
     try {
       const response = await this.makeRequest(
         "GET",
         "https://locate.measurementlab.net/v2/nearest/ndt/ndt7"
       );
-      if (response) {
-        const server = response.data.results[0];
+      if (
+        response &&
+        response.data.results &&
+        response.data.results.length > 0
+      ) {
+        const randomIndex = Math.floor(
+          Math.random() * response.data.results.length
+        );
+        const server = response.data.results[randomIndex];
         const downloadUrl = server.urls["wss:///ndt/v7/download"];
         const downloadSpeed = await this.measureDownloadSpeed(downloadUrl);
         const uploadUrl = server.urls["wss:///ndt/v7/upload"];
         const uploadSpeed = await this.measureUploadSpeed(uploadUrl);
+
         logMessage(
           this.currentNum,
           this.total,
@@ -180,7 +188,13 @@ class socketSpeed {
         );
         return { downloadSpeed, uploadSpeed };
       } else {
-        return false;
+        logMessage(
+          this.currentNum,
+          this.total,
+          `No speedtest servers available.`,
+          "error"
+        );
+        return null;
       }
     } catch (error) {
       logMessage(
@@ -260,6 +274,7 @@ class socketSpeed {
   }
 
   async reportResults(downloadSpeed, uploadSpeed, location) {
+    logMessage(this.currentNum, this.total, `Reporting results`, "process");
     const headers = {
       Authorization: `Bearer ${this.token}`,
       Origin: "https://app.despeed.net",
@@ -280,9 +295,8 @@ class socketSpeed {
       );
       if (response) {
         return response.data;
-      } else {
-        return false;
       }
+      return null;
     } catch (error) {
       logMessage(
         this.currentNum,
@@ -290,6 +304,7 @@ class socketSpeed {
         `Failed to report results: ${error.message}`,
         "error"
       );
+      return null;
     }
   }
 
