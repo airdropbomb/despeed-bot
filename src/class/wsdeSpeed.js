@@ -170,9 +170,29 @@ class socketSpeed {
         );
         const server = response.data.results[randomIndex];
         const downloadUrl = server.urls["wss:///ndt/v7/download"];
-        const downloadSpeed = await this.measureDownloadSpeed(downloadUrl);
+        const downloadSpeed = await this.measureDownloadSpeed(
+          downloadUrl
+        ).catch((error) => {
+          logMessage(
+            this.currentNum,
+            this.total,
+            `Download speedtest failed: ${error.message}`,
+            "error"
+          );
+          return 0;
+        });
         const uploadUrl = server.urls["wss:///ndt/v7/upload"];
-        const uploadSpeed = await this.measureUploadSpeed(uploadUrl);
+        const uploadSpeed = await this.measureUploadSpeed(uploadUrl).catch(
+          (error) => {
+            logMessage(
+              this.currentNum,
+              this.total,
+              `Upload speedtest failed: ${error.message}`,
+              "error"
+            );
+            return 0;
+          }
+        );
 
         logMessage(
           this.currentNum,
