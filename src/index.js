@@ -33,46 +33,41 @@ async function main() {
     while (true) {
       logMessage(null, null, "Starting new process, Please wait...", "debug");
 
-      const results = await Promise.all(
-        uniqueToken.map(async (token, index) => {
-          try {
-            const currentProxy = await getRandomProxy();
-            const despeed = new socketSpeed(
-              token,
-              currentProxy,
-              index + 1,
-              count
-            );
+      const results = [];
+      for (let i = 0; i < uniqueToken.length; i++) {
+        const token = uniqueToken[i];
+        try {
+          const currentProxy = await getRandomProxy();
+          const despeed = new socketSpeed(token, currentProxy, i + 1, count);
 
-            const data = await despeed.getDataAccount();
-            await despeed.processAccount();
+          const data = await despeed.getDataAccount();
+          await despeed.processAccount();
 
-            return {
-              email: data.data.email,
-              points: data.data.daily_earning || 0,
-              seasonEarning: data.data.season_earning || 0,
-              taskCompleted: despeed.taskCompleted,
-              proxy: currentProxy,
-              lastSpeedtestTime: despeed.lastSpeedtestTime || "N/A",
-            };
-          } catch (error) {
-            logMessage(
-              null,
-              null,
-              `Failed to process account: ${error.message}`,
-              "error"
-            );
-            return {
-              email: "N/A",
-              points: 0,
-              seasonEarning: 0,
-              taskCompleted: 0,
-              proxy: "N/A",
-              lastSpeedtestTime: "N/A",
-            };
-          }
-        })
-      );
+          results.push({
+            email: data.data.email,
+            points: data.data.daily_earning || 0,
+            seasonEarning: data.data.season_earning || 0,
+            taskCompleted: despeed.taskCompleted,
+            proxy: currentProxy,
+            lastSpeedtestTime: despeed.lastSpeedtestTime || "N/A",
+          });
+        } catch (error) {
+          logMessage(
+            null,
+            null,
+            `Failed to process account: ${error.message}`,
+            "error"
+          );
+          results.push({
+            email: "N/A",
+            points: 0,
+            seasonEarning: 0,
+            taskCompleted: 0,
+            proxy: "N/A",
+            lastSpeedtestTime: "N/A",
+          });
+        }
+      }
 
       console.log("\n" + "═".repeat(70));
       results.forEach((result) => {
