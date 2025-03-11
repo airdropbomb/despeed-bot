@@ -253,6 +253,15 @@ class socketSpeed {
         );
         resolve(0);
       });
+
+      ws.on("close", () => {
+        logMessage(
+          this.currentNum,
+          this.total,
+          `Download speedtest closed`,
+          "process"
+        );
+      });
     });
   }
 
@@ -289,6 +298,15 @@ class socketSpeed {
           "error"
         );
         resolve(0);
+      });
+
+      ws.on("close", () => {
+        logMessage(
+          this.currentNum,
+          this.total,
+          `Upload speedtest closed`,
+          "process"
+        );
       });
     });
   }
